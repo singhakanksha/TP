@@ -15,9 +15,9 @@ class ReleaseDslParser(val input: ParserInput) extends Parser {
  // def Statement:Rule1[String] = rule { str("release") ~> ((releaseName: String) => {("")}) }// ~ str("help") ~> ((s:String,s1:String) => s.toString.concat(s1))}
 
   def releaseExtractor: Rule1[String] = rule{ ReleaseString ~>
-    ((x:String) => x.mkString(",")) }
+    ((x:String) => "here is a list of repos to release") }
 
-  def Release: Rule0  = rule("release")
+  def Release: Rule0  = rule( ws ~ "release" ~ ws)
   def ReleaseString: Rule1[String] = rule(capture(Release))
 
 }
@@ -25,19 +25,25 @@ class ReleaseDslParser(val input: ParserInput) extends Parser {
 object ReleaseDslParser {
 
   def apply(input: String) = {
-    val parser = new ReleaseDslParser(input.toLowerCase())
+    val inpLower = input.toLowerCase
+    println(inpLower)
+    val parser = new ReleaseDslParser(inpLower)
     val parserResult: Try[String] = parser.releaseExtractor.run()
-
-   println(parserResult.isSuccess)
-//   match {
-//     case Success(str) => Right("hello")//Right(str)
-//     case Failure(e: ParseError) => Left(parser.formatError(e))
-//   }
-
+//    println("hello")
+//   println(parserResult.isSuccess)
+    parserResult match {
+     case Success(str) => println(str)
+     case Failure(e) => throw new RuntimeException("failed" + e.getCause)
+   }
+//println("hello world")
 }
 }
 
 
 object Test1 extends App{
-  new ReleaseDslParser("release")
+   ReleaseDslParser("  ReleAse   ")
+//  parsingResult match {
+//    case Success(e) => println(e)
+//    case Failure(e) => throw new RuntimeException("failed" + e.getCause)
+//  }
 }
