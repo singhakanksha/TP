@@ -23,7 +23,7 @@ class ReleaseDslParser(val input: ParserInput) extends Parser {
 
   def releaseExtractor: Rule1[String] = rule {
     ReleaseString ~>
-      ((x: String) => "Which project you wish to release, here is a list: \n" + Utils.repoMap.get("repositories"))
+      ((x: String) => "Which project you wish to release, here is a list: \n" + Utils.repoMap.get("repositories").get.mkString(","))
   }
 
   def Release: Rule0 = rule(ws ~ "release" ~ ws)
@@ -33,13 +33,13 @@ class ReleaseDslParser(val input: ParserInput) extends Parser {
 }
 
 object ReleaseDslParser {
-  def apply(input: String) = {
+  def apply(input: String):String = {
     val inpLower = input.toLowerCase
     println(inpLower)
     val parser = new ReleaseDslParser(inpLower)
     val parserResult: Try[String] = parser.releaseExtractor.run()
     parserResult match {
-      case Success(str) => println(str)
+      case Success(str) => str
       case Failure(e) => throw new RuntimeException("failed" + e.getCause)
     }
 
@@ -128,9 +128,10 @@ object Test1 extends App {
 
   val releaseCustomized = Release
 
-  ReleaseDslParser("release")
-  ProjectNameDslParser("NexGen")
-  BranchNameDslParser("master")
+  val str =  ReleaseDslParser("release")
+  println(str)
+//  ProjectNameDslParser("NexGen")
+//  BranchNameDslParser("master")
   //  parsingResult match {
   //    case Success(e) => println(e)
   //    case Failure(e) => throw new RuntimeException("failed" + e.getCause)
